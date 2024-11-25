@@ -1,0 +1,19 @@
+---
+- name: Deploy pihole
+  hosts: nas
+  become: true
+  vars: 
+    docker_root: "{{ docker_root | default('/volume3/projects/docker/pihole') }}"
+  tasks:
+    - name: ensure directory is present
+      ansible.builtin.file:
+      path: "{{ docker_root }}"
+      state: directory
+      mode: '0755'
+    - name: template docker-compose
+      ansible.builtin.template:
+      src: docker-compose.yml
+      dest: "{{ docker_root }}/docker-compose.yml"
+      mode: '0644'
+    - name: call docker-compose
+      ansible.builtin.raw: docker-compose up -f "{{ docker_root }}/pihole/docker-compose.yml"
